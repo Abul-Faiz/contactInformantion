@@ -1048,10 +1048,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if(input.files && input.files.length){
                 const f = input.files[0];
-                if(f.type && f.type.indexOf('image/') === 0){
-                    img.src = URL.createObjectURL(f);
-                    wrapper.insertBefore(img, wrapper.querySelector('.zf-upload-trigger') || null);
-                }
+                if(label) label.textContent = 'Choose File';
             } else {
                 if(label) label.textContent = 'Choose File';
             }
