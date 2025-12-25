@@ -898,6 +898,14 @@ ol, ul {
 	display:block;
 }
 
+/* --- Phone flag image display --- */
+.zf-phone-input-container{ position: relative; }
+.zf-cc-display{ position: absolute; left: 10px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; gap: 8px; pointer-events: none; font-size: 14px; color: #222; }
+.zf-cc-display img.zf-cc-flag{ width: 22px; height: 15px; object-fit: cover; display: inline-block; border-radius: 2px; }
+.zf-cc-display .zf-cc-code{ font-weight: 500; }
+.zf-country-code-prefix{ position: absolute; left: 0; top: 0; width: 200px; height: 100%; opacity: 0; }
+.zf-phone-number-input{ padding-left: 220px; }
+
 .zf-topAlign .zf-threeColumns .zf-labelName, .zf-topAlign .zf-twoColumns .zf-labelName, .zf-topAlign .zf-oneColumns .zf-labelName, .zf-topAlign .zf-sideBySide .zf-labelName{ padding-bottom:8px;}
 
 .zf-leftAlign {
@@ -1009,14 +1017,15 @@ ol, ul {
 
 /* New Phone Input with Country Code Prefix */
 .zf-phone-input-container {
-    display: flex;
-    align-items: center;
-    background: #fff;
-    border: 1px solid rgba(184, 187, 211, 1);
-    border-radius: 4px;
-    padding: 0;
-    height: 40px;
-    transition: 0.3s;
+	display: flex;
+	align-items: center;
+	background: #fff;
+	border: 1px solid rgba(184, 187, 211, 1);
+	border-radius: 4px;
+	padding: 0;
+	height: 40px;
+	transition: 0.3s;
+	position: relative;
 }
 
 .zf-phone-input-container:hover {
@@ -1029,18 +1038,54 @@ ol, ul {
 }
 
 .zf-country-code-prefix {
-    background: transparent;
-    border: none;
-    padding: 0 5px 0 10px;
-    font-size: 15px;
-    color: rgb(37, 44, 62);
-    height: 100%;
-    min-width: 90px;
-    cursor: pointer;
-    outline: none;
-    -webkit-appearance: auto;
-    -moz-appearance: auto;
-    appearance: auto;
+	/* keep native select functional but visually hidden; placed above the display */
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 120px;
+	height: 100%;
+	margin: 0;
+	padding: 0 8px;
+	background: transparent;
+	border: none;
+	opacity: 0; /* invisible but interactive */
+	cursor: pointer;
+	z-index: 3;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+}
+
+/* Ensure emoji flags render where supported and keep numbers visible */
+.zf-country-code-prefix,
+.zf-country-code-prefix option {
+	/* common emoji fonts across platforms */
+	font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", "Twemoji Mozilla", "Segoe UI Symbol", Arial, sans-serif;
+	font-weight: 500;
+	text-align: left;
+}
+
+/* Fallback display for platforms that don't render flag emoji inside native select */
+.zf-cc-display {
+	display: inline-flex;
+	align-items: center;
+	min-width: 90px;
+	padding: 0 8px;
+	font-size: 15px;
+	color: rgb(37,44,62);
+	font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", "Twemoji Mozilla", "Segoe UI Symbol", Arial, sans-serif;
+	pointer-events: none; /* clicks should go to the select */
+	position: absolute;
+	left: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 1;
+}
+
+/* Hide native select text but keep the native arrow visible */
+.zf-country-code-prefix-hidden {
+	color: transparent !important;
+	text-shadow: none !important;
 }
 
 .zf-country-code-prefix option {
@@ -1061,6 +1106,11 @@ ol, ul {
     height: 100%;
     outline: none;
     box-shadow: none !important;
+}
+
+/* leave room on the left for cc display */
+.zf-phone-number-input {
+	padding-left: 140px !important;
 }
 
 .zf-phone-number-input::placeholder {
