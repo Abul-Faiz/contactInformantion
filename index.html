@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <title>‌Contact Information</title>
     <link href="css/form.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
     <script src="js/validation.js"></script>
+    <link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css"
+/>
+
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js"></script>
+
 </head>
 
 <body class="zf-backgroundBg">
@@ -312,7 +321,7 @@
                             </label>
                             <div class="zf-tempContDiv zf-phonefld-new">
                                 <div class="zf-phone-input-container">
-                                    <select compname="PhoneNumber_countrycodeval" name="PhoneNumber_countrycodeval" 
+                                        <select compname="PhoneNumber_countrycodeVal" name="PhoneNumber_countrycodeVal" checktype="c1"
                                             id="PhoneNumber_countrycode_select" class="zf-country-code-prefix">
                                         <option value="213"> +213 Algeria</option>
                                         <option value="1"> +1 United States</option>
@@ -366,6 +375,8 @@
                                 <p id="PhoneNumber_error" class="zf-errorMessage" style="display:none;">Enter a number for this field.
                                 </p>
                             </div>
+                            <input type="tel" id="phone" placeholder="Enter phone number" class="zf-phone-number-input" />
+
                             <div class="zf-clearBoth"></div>
                         </div>
                         <div class="zf-tempFrmWrapper zf-section">
@@ -716,6 +727,12 @@
                                 <p id="FileUpload_error" class="zf-errorMessage" style="display: none;">
                                     Choose any file for this field.</p>
                             </div>
+                            <div class="zf-file-preview-wrapper">
+                                <div id="zfFilePreview"></div>
+                                <p id="zfFileLimitError" class="zf-errorMessage" style="display:none;">
+                                    You can only upload 1 file.
+                                </p>
+                            </div>
                             <div class="zf-clearBoth"></div>
                         </div>
                         <div class="zf-tempFrmWrapper"><label class="zf-labelName">
@@ -735,6 +752,10 @@
                                     Choose any file for this field.</p>
                                 <p class="zf-instruction">You can upload maximum 2 files in any of following formats:
                                     JPG, PNG, or ZIP</p>
+                            </div>
+                            <div class="zf-file-preview-wrapper">
+                                <div id="zfFilePreview1"></div>
+                                <p id="zfFileLimitError1" class="zf-errorMessage" style="display:none;">You can only upload 1 file.</p>
                             </div>
                             <div class="zf-clearBoth"></div>
                         </div>
@@ -918,6 +939,25 @@ else {
 </script>
 
 <script>
+      const phoneInput = document.querySelector("#phone");
+
+  const iti = window.intlTelInput(phoneInput, {
+    initialCountry: "in",          // Default India
+    separateDialCode: true,        // +91 shown separately
+    nationalMode: false,           // Always full international format
+    autoPlaceholder: "polite",     // Smart placeholder
+    utilsScript:
+      "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
+  });
+
+  // Optional: get full international number
+  function getPhoneNumber() {
+    if (iti.isValidNumber()) {
+      console.log(iti.getNumber()); // +919876543210
+    } else {
+      console.log("Invalid phone number");
+    }
+  }
 // Phone Number Validation - Only Numbers and Country-specific Max Length
 const countryPhoneLengths = {
   '213': 9,   // Algeria
@@ -963,11 +1003,11 @@ const countryPhoneLengths = {
   '51': 9     // Peru
 };
 
-const phoneInput = document.getElementById('international_PhoneNumber_countrycode');
+const phoneInput1 = document.getElementById('international_PhoneNumber_countrycode');
 const countrySelect = document.getElementById('PhoneNumber_countrycode_select');
 
 // Allow only numbers in phone input
-phoneInput.addEventListener('input', function(e) {
+phoneInput1.addEventListener('input', function(e) {
   // Remove any non-numeric characters
   this.value = this.value.replace(/[^0-9]/g, '');
   
@@ -987,14 +1027,13 @@ countrySelect.addEventListener('change', function() {
   
   // Trim existing value if it exceeds new max length
   if (phoneInput.value.length > maxLength) {
-    phoneInput.value = phoneInput.value.substring(0, maxLength);
+    phoneInput1.value = phoneInput1.value.substring(0, maxLength);
   }
 });
 
 // Initialize with default country (213 - Algeria)
 const initialMaxLength = countryPhoneLengths[countrySelect.value] || 15;
-phoneInput.maxLength = initialMaxLength;
-
+phoneInput1.maxLength = initialMaxLength;
 // Fallback: mirror selected option text (flag + code) into visible span
 document.addEventListener('DOMContentLoaded', function(){
     try{
@@ -1018,22 +1057,37 @@ document.addEventListener('DOMContentLoaded', function(){
             var isoLower = iso ? iso.toLowerCase() : '';
             var imgBase = 'images/flags/';
 
+            // show fallback immediately (emoji or option text) to avoid blank area
+            var fallbackFlag = isoToFlag(iso) || (opt ? opt.textContent : '');
+            ccDisplay.textContent = (fallbackFlag ? fallbackFlag + ' ' : '') + '+' + val;
+
             if(isoLower){
-                var imgPath = imgBase + isoLower + '.svg';
-                var testImg = new Image();
-                testImg.onload = function(){
-                    ccDisplay.innerHTML = '<img class="zf-cc-flag" src="'+imgPath+'" alt="'+(iso||'')+' flag'+'" /> <span class="zf-cc-code">+'+val+'</span>';
-                };
-                testImg.onerror = function(){
-                    var flag = isoToFlag(iso);
-                    if(flag) ccDisplay.textContent = flag + ' +' + val;
-                    else ccDisplay.textContent = opt ? opt.textContent : '';
-                };
-                testImg.src = imgPath;
-            } else {
-                var flag = isoToFlag(iso);
-                if(flag) ccDisplay.textContent = flag + ' +' + val;
-                else ccDisplay.textContent = opt ? opt.textContent : '';
+                // prefer CSS flag from flag-icon-css
+                var flagSpan = document.createElement('span');
+                flagSpan.className = 'flag-icon flag-icon-' + isoLower;
+                flagSpan.setAttribute('aria-hidden','true');
+                // set a temporary display (icon + code)
+                ccDisplay.innerHTML = '';
+                ccDisplay.appendChild(flagSpan);
+                var codeSpan = document.createElement('span');
+                codeSpan.className = 'zf-cc-code';
+                codeSpan.textContent = '+' + val;
+                ccDisplay.appendChild(codeSpan);
+
+                // verify if CSS flag renders by checking computed background-image
+                setTimeout(function(){
+                    var bg = window.getComputedStyle(flagSpan).getPropertyValue('background-image');
+                    if(!bg || bg === 'none'){
+                        // fallback to SVG image if CSS sprite not available
+                        var imgPath = './' + imgBase + isoLower + '.svg';
+                        var testImg = new Image();
+                        testImg.onload = function(){
+                            ccDisplay.innerHTML = '<img class="zf-cc-flag" src="'+imgPath+'" alt="'+(iso||'')+' flag'+'" /> <span class="zf-cc-code">+'+val+'</span>';
+                        };
+                        testImg.onerror = function(){ /* keep css fallback display (may show empty) */ };
+                        testImg.src = imgPath;
+                    }
+                }, 50);
             }
         }
         // hide native select text so our span is primary visual (keeps native arrow)
@@ -1071,7 +1125,162 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
+    // Make the entire file input wrapper clickable and show filename/preview
+    const wrappers = document.querySelectorAll('.zf-file-input-wrapper');
+    wrappers.forEach(function(wrapper){
+        const input = wrapper.querySelector('.zf-file-input');
+        const label = wrapper.querySelector('.zf-file-label');
+        if(!input) return;
+
+        // make wrapper keyboard-focusable
+        wrapper.setAttribute('tabindex', '0');
+        wrapper.setAttribute('role', 'button');
+
+        // forward clicks on wrapper to the hidden input (unless clicking the real file input or triggers)
+        wrapper.addEventListener('click', function(e){
+            if(e.target === input) return;
+            // allow clicking the upload trigger (label[for]) to behave as before
+            if(e.target.closest('.zf-upload-trigger')) return;
+            input.click();
+        });
+
+        // keyboard activation
+        wrapper.addEventListener('keydown', function(e){
+            if(e.key === 'Enter' || e.key === ' '){
+                e.preventDefault();
+                input.click();
+            }
+        });
+
+        // show selected filename and preview (for images)
+        input.addEventListener('change', function(){
+            const prev = wrapper.querySelector('.zf-file-preview');
+            if(prev) prev.remove();
+
+            if(input.files && input.files.length){
+                const f = input.files[0];
+                if(f.type && f.type.indexOf('image/') === 0){
+                    img.src = URL.createObjectURL(f);
+                    wrapper.insertBefore(img, wrapper.querySelector('.zf-upload-trigger') || null);
+                }
+            } else {
+                if(label) label.textContent = 'Choose File';
+            }
+        });
+    });
 });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const input = document.getElementById("FileUpload_input");
+  const preview = document.getElementById("zfFilePreview");
+  const error = document.getElementById("zfFileLimitError");
+
+  input.removeAttribute("multiple"); // hard stop
+
+  input.addEventListener("change", function () {
+        error.style.display = "none";
+        var fileErr = document.getElementById('FileUpload_error'); if(fileErr) fileErr.style.display = 'none';
+
+    // Block second upload
+    if (preview.children.length > 0) {
+      input.value = "";
+      error.style.display = "block";
+      return;
+    }
+
+    if (!input.files.length) return;
+
+    const file = input.files[0];
+    const sizeKB = Math.round(file.size / 1024);
+
+    const card = document.createElement("div");
+    card.className = "zf-file-card";
+
+    let thumb = "";
+    if (file.type.startsWith("image/")) {
+      thumb = `<img src="${URL.createObjectURL(file)}" class="zf-file-thumb" />`;
+    } else {
+      thumb = `<div class="zf-file-thumb">📄</div>`;
+    }
+
+    card.innerHTML = `
+      ${thumb}
+      <div class="zf-file-info">
+        <div class="zf-file-name">${file.name}</div>
+        <div class="zf-file-size">${sizeKB} KB</div>
+      </div>
+      <button type="button" class="zf-file-remove">&times;</button>
+    `;
+
+    card.querySelector(".zf-file-remove").onclick = () => {
+      preview.innerHTML = "";
+      input.value = "";
+            error.style.display = "none";
+            var fileErr = document.getElementById('FileUpload_error'); if(fileErr) fileErr.style.display = 'none';
+    };
+
+    preview.appendChild(card);
+  });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const input2 = document.getElementById("FileUpload1_input");
+    const preview2 = document.getElementById("zfFilePreview1");
+    const error2 = document.getElementById("zfFileLimitError1");
+
+    if(!input2) return;
+    input2.removeAttribute("multiple");
+
+    input2.addEventListener("change", function () {
+        if(error2) error2.style.display = "none";
+        var fileErr1 = document.getElementById('FileUpload1_error'); if(fileErr1) fileErr1.style.display = 'none';
+
+        if (preview2 && preview2.children.length > 0) {
+            input2.value = "";
+            if(error2) error2.style.display = "block";
+            return;
+        }
+
+        if (!input2.files || !input2.files.length) return;
+
+        const file = input2.files[0];
+        const sizeKB = Math.round(file.size / 1024);
+
+        const card = document.createElement("div");
+        card.className = "zf-file-card";
+
+        let thumb = "";
+        if (file.type && file.type.startsWith("image/")) {
+            thumb = `<img src="${URL.createObjectURL(file)}" class="zf-file-thumb" />`;
+        } else {
+            thumb = `<div class="zf-file-thumb">📄</div>`;
+        }
+
+        card.innerHTML = `
+            ${thumb}
+            <div class="zf-file-info">
+                <div class="zf-file-name">${file.name}</div>
+                <div class="zf-file-size">${sizeKB} KB</div>
+            </div>
+            <button type="button" class="zf-file-remove">&times;</button>
+        `;
+
+        card.querySelector(".zf-file-remove").onclick = () => {
+            if(preview2) preview2.innerHTML = "";
+            input2.value = "";
+            if(error2) error2.style.display = "none";
+            var fileErr1 = document.getElementById('FileUpload1_error'); if(fileErr1) fileErr1.style.display = 'none';
+        };
+
+        if(preview2) preview2.appendChild(card);
+    });
+});
+</script>
+
 
 

@@ -900,11 +900,14 @@ ol, ul {
 
 /* --- Phone flag image display --- */
 .zf-phone-input-container{ position: relative; }
-.zf-cc-display{ position: absolute; left: 10px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; gap: 8px; pointer-events: none; font-size: 14px; color: #222; }
+.zf-cc-display{ position: absolute; left: 10px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; gap: 8px; pointer-events: none; font-size: 14px; color: #222; z-index: 3; }
 .zf-cc-display img.zf-cc-flag{ width: 22px; height: 15px; object-fit: cover; display: inline-block; border-radius: 2px; }
 .zf-cc-display .zf-cc-code{ font-weight: 500; }
-.zf-country-code-prefix{ position: absolute; left: 0; top: 0; width: 200px; height: 100%; opacity: 0; }
+.zf-country-code-prefix{ position: absolute; left: 0; top: 0; min-width: 260px; width: auto; height: 100%; color: transparent; background: transparent; border: none; z-index: 2; -webkit-appearance: menulist-button; appearance: menulist-button; }
+.zf-country-code-prefix option{ color: #222; }
 .zf-phone-number-input{ padding-left: 220px; }
+.zf-cc-display .flag-icon{ width: 22px; height: 15px; display: inline-block; background-size: contain; background-position: 50% 50%; background-repeat: no-repeat; }
+.zf-cc-display .flag-icon.flag-icon-squared{ border-radius:2px; }
 
 .zf-topAlign .zf-threeColumns .zf-labelName, .zf-topAlign .zf-twoColumns .zf-labelName, .zf-topAlign .zf-oneColumns .zf-labelName, .zf-topAlign .zf-sideBySide .zf-labelName{ padding-bottom:8px;}
 
@@ -1704,3 +1707,57 @@ width: 223px;
 /* ------------------ Divider Field Css Ends here -------------------- */
 
 /* New Css */
+.zf-file-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: 1px solid #cfd3e8;
+  border-radius: 10px;
+  max-width: 360px;
+  background: #fff;
+}
+
+.zf-file-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.zf-file-info {
+  flex: 1;
+}
+
+.zf-file-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.zf-file-size {
+  font-size: 12px;
+  color: #667291;
+}
+
+.zf-file-remove {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #333;
+}
+
+/* Hide Zoho's default filename inside upload box */
+.zf-file-input-wrapper input[type="file"] + *,
+.zf-file-input-wrapper .zf-file-label {
+  pointer-events: none;
+}
+
+.zf-file-input-wrapper {
+  font-size: 0;
+}
+
+.zf-upload-icon {
+  font-size: 16px; /* restore icon */
+}
