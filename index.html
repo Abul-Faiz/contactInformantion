@@ -321,61 +321,13 @@
                             </label>
                             <div class="zf-tempContDiv zf-phonefld-new">
                                 <div class="zf-phone-input-container">
-                                        <select compname="PhoneNumber_countrycodeVal" name="PhoneNumber_countrycodeVal" checktype="c1"
-                                            id="PhoneNumber_countrycode_select" class="zf-country-code-prefix">
-                                        <option value="213"> +213 Algeria</option>
-                                        <option value="1"> +1 United States</option>
-                                        <option value="44"> +44 United Kingdom</option>
-                                        <option value="91"> +91 India</option>
-                                        <option value="86"> +86 China</option>
-                                        <option value="81"> +81 Japan</option>
-                                        <option value="33"> +33 France</option>
-                                        <option value="49"> +49 Germany</option>
-                                        <option value="39"> +39 Italy</option>
-                                        <option value="34"> +34 Spain</option>
-                                        <option value="61"> +61 Australia</option>
-                                        <option value="27"> +27 South Africa</option>
-                                        <option value="55"> +55 Brazil</option>
-                                        <option value="52"> +52 Mexico</option>
-                                        <option value="82"> +82 South Korea</option>
-                                        <option value="65"> +65 Singapore</option>
-                                        <option value="60"> +60 Malaysia</option>
-                                        <option value="66"> +66 Thailand</option>
-                                        <option value="62"> +62 Indonesia</option>
-                                        <option value="64"> +64 New Zealand</option>
-                                        <option value="32"> +32 Belgium</option>
-                                        <option value="31"> +31 Netherlands</option>
-                                        <option value="41"> +41 Switzerland</option>
-                                        <option value="43"> +43 Austria</option>
-                                        <option value="46"> +46 Sweden</option>
-                                        <option value="47"> +47 Norway</option>
-                                        <option value="45"> +45 Denmark</option>
-                                        <option value="358"> +358 Finland</option>
-                                        <option value="48"> +48 Poland</option>
-                                        <option value="36"> +36 Hungary</option>
-                                        <option value="40"> +40 Romania</option>
-                                        <option value="30"> +30 Greece</option>
-                                        <option value="90"> +90 Turkey</option>
-                                        <option value="972"> +972 Israel</option>
-                                        <option value="971"> +971 UAE</option>
-                                        <option value="966"> +966 Saudi Arabia</option>
-                                        <option value="974"> +974 Qatar</option>
-                                        <option value="56"> +56 Chile</option>
-                                        <option value="54"> +54 Argentina</option>
-                                        <option value="57"> +57 Colombia</option>
-                                        <option value="51"> +51 Peru</option>
-                                    </select>
-                                    <span class="zf-cc-display" aria-hidden="true"></span>
-                                    <input type="text" compname="PhoneNumber" name="PhoneNumber_countrycode"
-                                            maxlength="20" checktype="c7" value="" phoneFormat="1"
-                                            isCountryCodeEnabled=true fieldType="11"
-                                            id="international_PhoneNumber_countrycode" valType="number"
-                                            phoneFormatType="1" placeholder="Enter phone number" class="zf-phone-number-input" />
+                                    <!-- Keep a single visible phone input and a hidden country-code field for server/validation -->
+                                    <input type="tel" id="phone" name="PhoneNumber_countrycode" placeholder="Enter phone number" class="zf-phone-number-input" />
+                                    <input type="hidden" id="PhoneNumber_countrycodeVal" name="PhoneNumber_countrycodeVal" value="">
                                 </div>
                                 <p id="PhoneNumber_error" class="zf-errorMessage" style="display:none;">Enter a number for this field.
                                 </p>
                             </div>
-                            <input type="tel" id="phone" placeholder="Enter phone number" class="zf-phone-number-input" />
 
                             <div class="zf-clearBoth"></div>
                         </div>
@@ -1003,99 +955,35 @@ const countryPhoneLengths = {
   '51': 9     // Peru
 };
 
-const phoneInput1 = document.getElementById('international_PhoneNumber_countrycode');
-const countrySelect = document.getElementById('PhoneNumber_countrycode_select');
+const hiddenCountryVal = document.getElementById('PhoneNumber_countrycodeVal');
 
-// Allow only numbers in phone input
-phoneInput1.addEventListener('input', function(e) {
-  // Remove any non-numeric characters
-  this.value = this.value.replace(/[^0-9]/g, '');
-  
-  // Enforce country-specific max length
-  const selectedCountry = countrySelect.value;
-  const maxLength = countryPhoneLengths[selectedCountry] || 15;
-  
-  if (this.value.length > maxLength) {
-    this.value = this.value.substring(0, maxLength);
-  }
-});
+// Wire intl-tel-input instance to hidden field and enforce numeric-only on visible input.
+if (typeof phoneInput !== 'undefined' && phoneInput) {
+    // ensure the visible input has the server field name
+    phoneInput.setAttribute('name', 'PhoneNumber_countrycode');
 
-// Update max length when country changes
-countrySelect.addEventListener('change', function() {
-  const maxLength = countryPhoneLengths[this.value] || 15;
-  phoneInput.maxLength = maxLength;
-  
-  // Trim existing value if it exceeds new max length
-  if (phoneInput.value.length > maxLength) {
-    phoneInput1.value = phoneInput1.value.substring(0, maxLength);
-  }
-});
-
-// Initialize with default country (213 - Algeria)
-const initialMaxLength = countryPhoneLengths[countrySelect.value] || 15;
-phoneInput1.maxLength = initialMaxLength;
-// Fallback: mirror selected option text (flag + code) into visible span
-document.addEventListener('DOMContentLoaded', function(){
-    try{
-        var ccDisplay = document.querySelector('.zf-cc-display');
-        if(!countrySelect || !ccDisplay) return;
-        const codeToIso = {
-            '213':'DZ','1':'US','44':'GB','91':'IN','86':'CN','81':'JP','33':'FR','49':'DE','39':'IT','34':'ES','61':'AU','27':'ZA','55':'BR','52':'MX','82':'KR','65':'SG','60':'MY','66':'TH','62':'ID','64':'NZ','32':'BE','31':'NL','41':'CH','43':'AT','46':'SE','47':'NO','45':'DK','358':'FI','48':'PL','36':'HU','40':'RO','30':'GR','90':'TR','972':'IL','971':'AE','966':'SA','974':'QA','56':'CL','54':'AR','57':'CO','51':'PE'
-        };
-
-        function isoToFlag(iso){
-            if(!iso || iso.length !== 2) return '';
-            const A = 0x1F1E6;
-            const chars = Array.from(iso.toUpperCase()).map(c => A + c.charCodeAt(0) - 65);
-            try{ return String.fromCodePoint.apply(null, chars); }catch(e){ return ''; }
+    function applyCountrySettings() {
+        if (typeof iti !== 'undefined' && iti && typeof iti.getSelectedCountryData === 'function') {
+            var data = iti.getSelectedCountryData() || {};
+            if (hiddenCountryVal) hiddenCountryVal.value = data.dialCode || '';
+            var maxLen = countryPhoneLengths[data.dialCode] || 15;
+            try { phoneInput.maxLength = maxLen; } catch (e) {}
         }
+    }
 
-        function refreshCC(){
-            var opt = countrySelect.options[countrySelect.selectedIndex];
-            var val = countrySelect.value;
-            var iso = codeToIso[val];
-            var isoLower = iso ? iso.toLowerCase() : '';
-            var imgBase = 'images/flags/';
+    // init on load
+    try { applyCountrySettings(); } catch (e) {}
 
-            // show fallback immediately (emoji or option text) to avoid blank area
-            var fallbackFlag = isoToFlag(iso) || (opt ? opt.textContent : '');
-            ccDisplay.textContent = (fallbackFlag ? fallbackFlag + ' ' : '') + '+' + val;
+    // update when intl-tel-input changes country
+    phoneInput.addEventListener('countrychange', function () { applyCountrySettings(); var er=document.getElementById('PhoneNumber_error'); if(er) er.style.display='none'; });
 
-            if(isoLower){
-                // prefer CSS flag from flag-icon-css
-                var flagSpan = document.createElement('span');
-                flagSpan.className = 'flag-icon flag-icon-' + isoLower;
-                flagSpan.setAttribute('aria-hidden','true');
-                // set a temporary display (icon + code)
-                ccDisplay.innerHTML = '';
-                ccDisplay.appendChild(flagSpan);
-                var codeSpan = document.createElement('span');
-                codeSpan.className = 'zf-cc-code';
-                codeSpan.textContent = '+' + val;
-                ccDisplay.appendChild(codeSpan);
-
-                // verify if CSS flag renders by checking computed background-image
-                setTimeout(function(){
-                    var bg = window.getComputedStyle(flagSpan).getPropertyValue('background-image');
-                    if(!bg || bg === 'none'){
-                        // fallback to SVG image if CSS sprite not available
-                        var imgPath = './' + imgBase + isoLower + '.svg';
-                        var testImg = new Image();
-                        testImg.onload = function(){
-                            ccDisplay.innerHTML = '<img class="zf-cc-flag" src="'+imgPath+'" alt="'+(iso||'')+' flag'+'" /> <span class="zf-cc-code">+'+val+'</span>';
-                        };
-                        testImg.onerror = function(){ /* keep css fallback display (may show empty) */ };
-                        testImg.src = imgPath;
-                    }
-                }, 50);
-            }
-        }
-        // hide native select text so our span is primary visual (keeps native arrow)
-        countrySelect.classList.add('zf-country-code-prefix-hidden');
-        refreshCC();
-        countrySelect.addEventListener('change', function(){ refreshCC(); var er=document.getElementById('PhoneNumber_error'); if(er) er.style.display='none'; });
-    }catch(e){console.error(e)}
-});
+    // enforce numeric-only and max length on user input
+    phoneInput.addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        if (this.maxLength) this.value = this.value.slice(0, this.maxLength);
+        var er=document.getElementById('PhoneNumber_error'); if(er) er.style.display='none';
+    });
+}
 </script>
 
 
